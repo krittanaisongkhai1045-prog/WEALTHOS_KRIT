@@ -1,0 +1,1 @@
+# WEALTHOS_KRIT
