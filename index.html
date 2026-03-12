@@ -280,10 +280,31 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <input class="fi" type="number" id="mi-total" placeholder="0.00" step="any">
       <div class="fhint" id="mi-th"></div>
     </div>
+    <!-- PRICE MODE TOGGLE -->
     <div class="fg">
+      <label class="fl">โหมดราคาปัจจุบัน</label>
+      <div style="display:flex;gap:7px">
+        <button id="pm-auto-btn" class="btn btn-b btn-sm" onclick="setPriceMode('auto')">📡 ดึงอัตโนมัติ</button>
+        <button id="pm-manual-btn" class="btn btn-ghost btn-sm" onclick="setPriceMode('manual')">📝 กรอกรายเดือน</button>
+      </div>
+    </div>
+    <!-- AUTO MODE -->
+    <div id="pm-auto-sec" class="fg">
       <label class="fl">ราคาปัจจุบัน (USD)</label>
-      <input class="fi" type="number" id="mi-cur" placeholder="0.00" step="any">
+      <div style="display:flex;gap:7px;align-items:stretch">
+        <input class="fi" type="number" id="mi-cur" placeholder="0.00" step="any" style="flex:1">
+        <button class="btn btn-b btn-sm" id="mi-fetch-btn" onclick="fetchSinglePrice()" style="flex-shrink:0;white-space:nowrap">📡 ดึงราคา</button>
+      </div>
       <div class="fhint ok" id="mi-ch"></div>
+    </div>
+    <!-- MANUAL MONTHLY MODE -->
+    <div id="pm-manual-sec" style="display:none;margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label class="fl" style="margin:0">ราคารายเดือน (USD)</label>
+        <button class="btn btn-ghost btn-xs" onclick="addPriceRow()">+ เพิ่มเดือน</button>
+      </div>
+      <div id="mi-ph-list" style="max-height:200px;overflow-y:auto"></div>
+      <div class="fhint" id="mi-ph-hint" style="margin-top:5px">💡 ราคาของเดือนล่าสุดจะใช้เป็นราคาปัจจุบัน</div>
     </div>
     <div class="fg">
       <label class="fl">% เป้าหมายในพอร์ต</label>
@@ -404,7 +425,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   </div>
   <div class="mbody">
     <div class="fg">
-      <label class="fl">พอร์ต</label>
+      <label class="fl">ถอนจากพอร์ต</label>
       <select class="fs" id="fw-pid"></select>
     </div>
     <div class="fr">
@@ -417,13 +438,51 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <input class="fi" type="number" id="fw-a" placeholder="0.00" step="any" min="0">
       </div>
     </div>
+
+    <!-- ปลายทางของเงิน -->
+    <div class="fg">
+      <label class="fl">เงินที่ถอนนำไปทำอะไร?</label>
+      <div style="display:flex;flex-direction:column;gap:7px" id="fw-dest-opts">
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rads);cursor:pointer" onclick="setFwDest('reserve')">
+          <input type="radio" name="fw-dest" value="reserve" id="fw-r-res" style="accent-color:var(--g);width:16px;height:16px">
+          <div>
+            <div style="font-weight:600;font-size:13px">🏦 โยกไปเงินสำรอง</div>
+            <div style="font-size:10px;color:var(--muted)">บันทึกเป็นรายรับในหน้าเงินสำรองอัตโนมัติ</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rads);cursor:pointer" onclick="setFwDest('expense')">
+          <input type="radio" name="fw-dest" value="expense" id="fw-r-exp" style="accent-color:var(--r);width:16px;height:16px">
+          <div>
+            <div style="font-weight:600;font-size:13px">🛍️ นำไปใช้จ่าย</div>
+            <div style="font-size:10px;color:var(--muted)">บันทึกเป็นรายจ่ายในหน้าเงินสำรองอัตโนมัติ</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rads);cursor:pointer" onclick="setFwDest('none')">
+          <input type="radio" name="fw-dest" value="none" id="fw-r-none" checked style="accent-color:var(--muted);width:16px;height:16px">
+          <div>
+            <div style="font-weight:600;font-size:13px">📋 บันทึกการถอนอย่างเดียว</div>
+            <div style="font-size:10px;color:var(--muted)">ไม่เพิ่มข้อมูลในส่วนอื่น</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- หมวดหมู่ ถ้าเลือกค่าใช้จ่าย -->
+    <div class="fg" id="fw-cat-wrap" style="display:none">
+      <label class="fl">หมวดหมู่ค่าใช้จ่าย</label>
+      <select class="fs" id="fw-cat">
+        <option>กำไร FOREX</option><option>ช็อปปิ้ง</option><option>อาหาร</option>
+        <option>เดินทาง</option><option>ที่พัก</option><option>สุขภาพ</option><option>อื่นๆ</option>
+      </select>
+    </div>
+
     <div class="fg">
       <label class="fl">หมายเหตุ</label>
       <input class="fi" id="fw-note" placeholder="—">
     </div>
   </div>
   <div class="mfoot">
-    <button class="btn btn-g btn-full" onclick="saveFw()">💾 บันทึกการถอน</button>
+    <button class="btn btn-g btn-full" onclick="saveFw()">💾 บันทึก</button>
     <button class="btn btn-ghost" onclick="cm('m-fw')">ยกเลิก</button>
   </div>
 </div>
@@ -511,7 +570,8 @@ const KEY = 'wo_v5';
 let DB = {investments:[], reserve:[], fxPorts:[], fxWithdrawals:[], usdthb:35.0};
 let LIVE = {};
 let editId=null, pxEditId=null;
-let pieChart=null;
+let _priceMode='auto', _priceHistory=[];
+let pieChart=null, growthChart=null;
 
 function loadDB(){try{const r=localStorage.getItem(KEY);if(r)DB={...DB,...JSON.parse(r)};}catch(e){}}
 function saveDB(){DB.savedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
@@ -606,6 +666,52 @@ function calcFx(){
   return{totalBal,totalWith,ports:DB.fxPorts.length};
 }
 
+/* ══ GROWTH CHART DATA ═══════════════════════════════════════════════
+   สร้างข้อมูลรายเดือนย้อนหลัง 12 เดือน จากข้อมูลจริงในระบบ
+   - พอร์ตลงทุน: สะสม totalBaht ของแต่ละ investment ตาม date
+   - เงินสำรอง: สะสม reserve transactions รายเดือน
+   - FX Bot: สะสม withdrawals รายเดือน
+════════════════════════════════════════════════════════════════════ */
+function buildGrowthData(){
+  // สร้าง 12 เดือนย้อนหลัง
+  const months = [];
+  const now = new Date();
+  for(let i=11; i>=0; i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    months.push(d.toISOString().slice(0,7)); // "YYYY-MM"
+  }
+
+  // ── พอร์ตลงทุน: ใช้มูลค่าปัจจุบัน + สะสมจากวันที่ซื้อ ──
+  // แต่ละเดือน = มูลค่าของสินทรัพย์ที่ซื้อไปแล้ว ณ เดือนนั้น (ใช้ราคาปัจจุบันเป็น proxy)
+  const invByMonth = months.map(m => {
+    const bought = DB.investments.filter(i => i.date && i.date.slice(0,7) <= m);
+    return bought.reduce((s,i) => s + (i.totalBaht||(i.qty*i.buyPrice*(DB.usdthb||35))), 0);
+  });
+
+  // ── เงินสำรอง: สะสมยอดคงเหลือถึงแต่ละเดือน ──
+  const resByMonth = months.map(m => {
+    return DB.reserve
+      .filter(t => t.date && t.date.slice(0,7) <= m)
+      .reduce((s,t) => s+t.amount, 0);
+  });
+
+  // ── FX Bot: สะสมการถอนกำไรถึงแต่ละเดือน ──
+  const fxByMonth = months.map(m => {
+    return DB.fxWithdrawals
+      .filter(w => w.date && w.date.slice(0,7) <= m)
+      .reduce((s,w) => s+w.amount, 0);
+  });
+
+  // labels แสดงเป็นเดือนภาษาไทย
+  const labels = months.map(m => {
+    const [y,mo] = m.split('-');
+    const thMonth = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${thMonth[parseInt(mo)]}${(parseInt(y)+543).toString().slice(2)}`;
+  });
+
+  return { labels, invByMonth, resByMonth, fxByMonth };
+}
+
 /* ══ DASHBOARD ═══════════════════════════════════════════════════════ */
 function rDash(){
   const inv=calcInv(),res=calcRes(),fx=calcFx();
@@ -634,6 +740,19 @@ function rDash(){
     <div class="kpi y"><div class="kico">💸</div><div class="kl">ถอนกำไรรวม</div><div class="kv y">${fB(fx.totalWith)}</div></div>
   </div>
   <div class="card">
+    <div class="ch">
+      <span class="ct">📈 การเติบโตรายเดือน</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs active-range" id="rng-6"  onclick="setRange(6)">6ด.</button>
+        <button class="btn btn-ghost btn-xs" id="rng-12" onclick="setRange(12)">12ด.</button>
+      </div>
+    </div>
+    <div class="cb" style="padding-bottom:8px">
+      <div style="position:relative;height:200px"><canvas id="d-growth"></canvas></div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:10px;flex-wrap:wrap" id="d-growth-leg"></div>
+    </div>
+  </div>
+  <div class="card">
     <div class="ch"><span class="ct">🥧 Sector</span></div>
     <div class="cb">
       <div class="cwrap"><canvas id="d-pie"></canvas></div>
@@ -654,6 +773,129 @@ function rDash(){
   }
   const rec=[...DB.reserve].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
   document.getElementById('d-rec').innerHTML=rec.length?rec.map(t=>`<div style="padding:9px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600">${t.desc}</div><div style="font-size:10px;color:var(--muted)">${t.date} · ${t.cat}</div></div><div class="mono ${t.amount>=0?'pos':'neg'}" style="font-size:13px;font-weight:700">${t.amount>=0?'+':''}${fB(t.amount)}</div></div>`).join(''):'<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px">ยังไม่มีธุรกรรม</div>';
+
+  // Growth chart
+  renderGrowthChart(DB._chartRange||12);
+}
+
+/* ══ GROWTH CHART RENDER ═════════════════════════════════════════════ */
+function renderGrowthChart(range){
+  const el = document.getElementById('d-growth');
+  if(!el) return;
+  const gd = buildGrowthData();
+  const n = range || 12;
+  const labels = gd.labels.slice(-n);
+  const inv    = gd.invByMonth.slice(-n);
+  const res    = gd.resByMonth.slice(-n);
+  const fx     = gd.fxByMonth.slice(-n);
+
+  // range button highlight
+  ['6','12'].forEach(r => {
+    const b = document.getElementById('rng-'+r);
+    if(b) b.style.color = String(n)===r ? 'var(--g)' : '';
+  });
+
+  if(growthChart) growthChart.destroy();
+  const ctx = el.getContext('2d');
+
+  // gradient fills
+  const gG = ctx.createLinearGradient(0,0,0,200);
+  gG.addColorStop(0,'rgba(75,150,255,0.35)'); gG.addColorStop(1,'rgba(75,150,255,0)');
+  const gR = ctx.createLinearGradient(0,0,0,200);
+  gR.addColorStop(0,'rgba(0,223,160,0.35)'); gR.addColorStop(1,'rgba(0,223,160,0)');
+  const gFx = ctx.createLinearGradient(0,0,0,200);
+  gFx.addColorStop(0,'rgba(240,183,48,0.35)'); gFx.addColorStop(1,'rgba(240,183,48,0)');
+
+  const hasAnyData = [...inv,...res,...fx].some(v=>v>0);
+
+  growthChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'พอร์ตลงทุน',
+          data: inv,
+          borderColor: '#4b96ff', backgroundColor: gG,
+          borderWidth: 2, fill: true, tension: 0.4,
+          pointRadius: 3, pointBackgroundColor: '#4b96ff',
+          pointHoverRadius: 5,
+        },
+        {
+          label: 'เงินสำรอง',
+          data: res,
+          borderColor: '#00dfa0', backgroundColor: gR,
+          borderWidth: 2, fill: true, tension: 0.4,
+          pointRadius: 3, pointBackgroundColor: '#00dfa0',
+          pointHoverRadius: 5,
+        },
+        {
+          label: 'FX ถอนสะสม',
+          data: fx,
+          borderColor: '#f0b730', backgroundColor: gFx,
+          borderWidth: 2, fill: true, tension: 0.4,
+          pointRadius: 3, pointBackgroundColor: '#f0b730',
+          pointHoverRadius: 5,
+        },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(17,20,34,0.95)',
+          borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+          titleColor: '#dde3f8', bodyColor: '#7c85aa',
+          padding: 10, cornerRadius: 8,
+          callbacks: { label: c => ` ${c.dataset.label}: ${fB(c.raw)}` }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#515878', font: { size: 10 }, maxRotation: 0 }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: {
+            color: '#515878', font: { size: 10 },
+            callback: v => v >= 1000000 ? `${fN(v/1000000,1)}M` : v >= 1000 ? `${fN(v/1000,0)}k` : fN(v,0)
+          }
+        }
+      }
+    }
+  });
+
+  // legend
+  const legItems = [
+    {label:'พอร์ตลงทุน', color:'#4b96ff'},
+    {label:'เงินสำรอง',   color:'#00dfa0'},
+    {label:'FX ถอนสะสม', color:'#f0b730'},
+  ];
+  const legEl = document.getElementById('d-growth-leg');
+  if(legEl){
+    legEl.innerHTML = legItems.map(l=>`
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)">
+        <span style="width:20px;height:3px;background:${l.color};border-radius:2px;display:inline-block"></span>
+        ${l.label}
+      </div>`).join('');
+  }
+
+  if(!hasAnyData){
+    ctx.save();
+    ctx.fillStyle = '#515878';
+    ctx.font = '12px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('เพิ่มข้อมูลการลงทุน เงินสำรอง หรือการถอน FOREX เพื่อดูกราฟ', el.width/2, 90);
+    ctx.restore();
+  }
+}
+
+function setRange(n){
+  DB._chartRange = n;
+  renderGrowthChart(n);
 }
 
 /* ══ INVEST PAGE ═════════════════════════════════════════════════════ */
@@ -694,7 +936,7 @@ function rInvest(){
           <div style="display:flex;justify-content:space-between;align-items:flex-start">
             <div>
               <div class="asy" style="color:${SEC[cat].color}">${i.sym}${lp?`<span style="font-size:9px;color:var(--muted2);margin-left:4px">${(lp.chg||0)>=0?'▲':'▽'}${fN(Math.abs(lp.chg||0))}%</span>`:''}</div>
-              <div class="aname">${i.name}</div>
+              <div class="aname">${i.name}${i.priceMode==='manual'?`<span style="margin-left:5px;background:rgba(240,183,48,.15);color:var(--y);border:1px solid rgba(240,183,48,.25);border-radius:4px;padding:1px 5px;font-size:8.5px;font-weight:700">📝 ${i.priceHistory?.length||0} เดือน</span>`:''}</div>
             </div>
             <div style="display:flex;gap:3px">
               <button class="btn btn-ghost btico" onclick="openPxMod('${i.id}','${i.sym}')">💹</button>
@@ -978,7 +1220,9 @@ function renderFwList(){
   const sorted=[...DB.fxWithdrawals].sort((a,b)=>b.date.localeCompare(a.date));
   el.innerHTML=sorted.length?sorted.map(w=>{
     const port=DB.fxPorts.find(p=>p.id===w.portId);
-    return`<div class="with-row"><div><div style="font-size:12px;font-weight:600">${fB(w.amount)}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${w.date} · ${port?.name||'ไม่ทราบพอร์ต'}${w.note?' · '+w.note:''}</div></div><button class="btn btn-ghost btico" onclick="doDelete('fxWithdrawals','${w.id}')">🗑️</button></div>`;
+    const destTag = w.dest==='reserve' ? `<span class="tag tg" style="font-size:9px">→ เงินสำรอง</span>` :
+                    w.dest==='expense' ? `<span class="tag tr" style="font-size:9px">→ ค่าใช้จ่าย</span>` : '';
+    return`<div class="with-row"><div><div style="display:flex;align-items:center;gap:5px"><span style="font-size:12px;font-weight:600">${fB(w.amount)}</span>${destTag}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${w.date} · ${port?.name||'ไม่ทราบพอร์ต'}${w.note?' · '+w.note:''}</div></div><button class="btn btn-ghost btico" onclick="doDelete('fxWithdrawals','${w.id}')">🗑️</button></div>`;
   }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">ยังไม่มีการถอน</div>';
 }
 
@@ -987,13 +1231,23 @@ function openFxMenu(){
   om('m-fp','new');
 }
 function openFw(){
-  // populate port select
   const sel=document.getElementById('fw-pid');
   sel.innerHTML=DB.fxPorts.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
   document.getElementById('fw-d').value=today();
   document.getElementById('fw-a').value='';
   document.getElementById('fw-note').value='';
+  document.getElementById('fw-r-none').checked=true;
+  document.getElementById('fw-cat-wrap').style.display='none';
+  document.querySelectorAll('#fw-dest-opts label').forEach(l=>l.style.borderColor='var(--border2)');
   document.getElementById('m-fw').classList.add('open');
+}
+
+function setFwDest(val){
+  document.querySelectorAll('#fw-dest-opts label').forEach(l=>{
+    const inp=l.querySelector('input');
+    l.style.borderColor=inp?.value===val?(val==='reserve'?'var(--g)':val==='expense'?'var(--r)':'var(--muted)'):'var(--border2)';
+  });
+  document.getElementById('fw-cat-wrap').style.display=val==='expense'?'block':'none';
 }
 
 /* ══ MODAL HELPERS ═══════════════════════════════════════════════════ */
@@ -1012,11 +1266,21 @@ function om(id,mode,eid=null){
     document.getElementById('mi-qty').value=d?.qty||'';
     document.getElementById('mi-buy').value=d?.buyPrice||'';
     document.getElementById('mi-total').value=d?.totalBaht||'';
-    document.getElementById('mi-cur').value=d?.curPrice||'';
     document.getElementById('mi-tgt').value=d?.tgt||bp?.tgt||0;
     document.getElementById('mi-sh').textContent='';
-    document.getElementById('mi-ch').textContent=d?.sym&&LIVE[d.sym]?`📡 ราคาสด: ${fU(LIVE[d.sym].price)} (${fP(LIVE[d.sym].chg)})`: '';
-    if(d?.sym) onSym(d.sym);
+    document.getElementById('mi-ch').textContent='';
+    // คืนค่า price mode (new = auto default, edit = restore)
+    _priceMode=d?.priceMode||'auto';
+    _priceHistory=d?.priceHistory?JSON.parse(JSON.stringify(d.priceHistory)):[];
+    // ถ้า new: เพิ่มเดือนปัจจุบันไว้ล่วงหน้าเผื่อเลือก manual
+    if(mode==='new') _priceHistory=[];
+    setPriceMode(_priceMode);
+    document.getElementById('mi-cur').value=d?.curPrice||'';
+    renderPriceHistory();
+    if(d?.sym){
+      document.getElementById('mi-ch').textContent=d.sym&&LIVE[d.sym]?`📡 ราคาสด: ${fU(LIVE[d.sym].price)} (${fP(LIVE[d.sym].chg)})`: '';
+      onSym(d.sym);
+    }
   }
   if(id==='m-res'){
     document.getElementById('mr-t').textContent=mode==='new'?'➕ บันทึกธุรกรรม':'✏️ แก้ไขธุรกรรม';
@@ -1045,12 +1309,24 @@ function saveInv(){
   const qty=parseFloat(document.getElementById('mi-qty').value);
   const buyP=parseFloat(document.getElementById('mi-buy').value);
   const totalBaht=parseFloat(document.getElementById('mi-total').value)||(qty*buyP*DB.usdthb);
-  const curPrice=parseFloat(document.getElementById('mi-cur').value)||buyP;
   const cat=document.getElementById('mi-cat').value;
   const date=document.getElementById('mi-date').value;
   const tgt=parseFloat(document.getElementById('mi-tgt').value)||0;
   if(!sym||!name||isNaN(qty)||isNaN(buyP)){toast('กรุณากรอกข้อมูลให้ครบ',false);return;}
-  const rec={id:editId||uid(),sym,name,cat,date,qty,buyPrice:buyP,totalBaht,curPrice,tgt};
+
+  let curPrice=buyP;
+  let priceHistory=[];
+  if(_priceMode==='auto'){
+    curPrice=parseFloat(document.getElementById('mi-cur').value)||buyP;
+  }else{
+    priceHistory=_priceHistory.filter(r=>r.price>0);
+    if(!priceHistory.length){toast('กรุณาเพิ่มราคาอย่างน้อย 1 เดือน',false);return;}
+    const latest=[...priceHistory].sort((a,b)=>b.month.localeCompare(a.month))[0];
+    curPrice=latest.price;
+  }
+
+  const rec={id:editId||uid(),sym,name,cat,date,qty,buyPrice:buyP,totalBaht,curPrice,tgt,
+             priceMode:_priceMode,priceHistory};
   if(editId) DB.investments=DB.investments.map(x=>x.id===editId?rec:x);
   else DB.investments.push(rec);
   saveDB();cm('m-inv');toast('บันทึกสำเร็จ');rInvest();rDash();
@@ -1101,13 +1377,34 @@ function saveFw(){
   const date=document.getElementById('fw-d').value;
   const amount=parseFloat(document.getElementById('fw-a').value);
   const note=document.getElementById('fw-note').value.trim();
+  const dest=document.querySelector('input[name="fw-dest"]:checked')?.value||'none';
+  const cat=document.getElementById('fw-cat')?.value||'กำไร FOREX';
   if(!portId||!date||isNaN(amount)||amount<=0){toast('กรุณากรอกข้อมูลให้ครบ',false);return;}
-  DB.fxWithdrawals.push({id:uid(),portId,date,amount,note});
-  saveDB();cm('m-fw');toast('บันทึกการถอนสำเร็จ');rFx();rDash();
+  const port=DB.fxPorts.find(p=>p.id===portId);
+
+  // บันทึกการถอน
+  DB.fxWithdrawals.push({id:uid(),portId,date,amount,note,dest});
+
+  // โยกไปเงินสำรอง → เพิ่มรายรับอัตโนมัติ
+  if(dest==='reserve'){
+    DB.reserve.push({id:uid(),date,type:'income',cat:'รายได้ลงทุน',
+      desc:`กำไร FX${port?' ('+port.name+')':''}${note?' — '+note:''}`,amount});
+    toast(`บันทึกแล้ว ✅ เพิ่ม ${fB(amount)} ในเงินสำรอง`);
+  }
+  // ค่าใช้จ่าย → เพิ่มรายจ่ายอัตโนมัติ
+  else if(dest==='expense'){
+    DB.reserve.push({id:uid(),date,type:'expense',cat,
+      desc:`ใช้จ่ายจากกำไร FX${port?' ('+port.name+')':''}${note?' — '+note:''}`,amount:-amount});
+    toast(`บันทึกแล้ว ✅ เพิ่มรายจ่าย ${fB(amount)} ในเงินสำรอง`);
+  }
+  else { toast('บันทึกการถอนสำเร็จ'); }
+
+  saveDB();cm('m-fw');rFx();rDash();
 }
 
 /* ══ INVEST FORM HELPERS ═════════════════════════════════════════════ */
-function onSym(v){
+let _symFetchTimer=null;
+async function onSym(v){
   const sym=v.toUpperCase().trim();
   const bp=KNOWN[sym];
   const sh=document.getElementById('mi-sh');
@@ -1118,11 +1415,102 @@ function onSym(v){
     if(!document.getElementById('mi-tgt').value&&bp.tgt) document.getElementById('mi-tgt').value=bp.tgt;
     sh.textContent=`✓ ${bp.name}`;sh.className='fhint ok';
   }else{sh.textContent=sym?'📝 สินทรัพย์ใหม่':'';sh.className='fhint';}
-  if(LIVE[sym]?.price){
-    document.getElementById('mi-cur').value=LIVE[sym].price;
-    ch.textContent=`📡 ราคาสด: ${fU(LIVE[sym].price)} (${fP(LIVE[sym].chg)})`;
-  }else ch.textContent='';
+  // ถ้าโหมด auto: ดึงราคาอัตโนมัติ
+  if(_priceMode==='auto'){
+    if(LIVE[sym]?.price){
+      document.getElementById('mi-cur').value=LIVE[sym].price;
+      ch.textContent=`📡 ราคาสด: ${fU(LIVE[sym].price)} (${fP(LIVE[sym].chg)})`;
+      ch.className='fhint ok';
+    }else if(sym.length>=2){
+      ch.textContent='⏳ กำลังดึงราคา...';ch.className='fhint';
+      clearTimeout(_symFetchTimer);
+      _symFetchTimer=setTimeout(()=>fetchSinglePrice(sym),700);
+    }else{ch.textContent='';ch.className='fhint';}
+  }
   calcTotal();
+}
+
+function setPriceMode(mode){
+  _priceMode=mode;
+  document.getElementById('pm-auto-sec').style.display=mode==='auto'?'':'none';
+  document.getElementById('pm-manual-sec').style.display=mode==='manual'?'':'none';
+  document.getElementById('pm-auto-btn').className=`btn btn-sm ${mode==='auto'?'btn-b':'btn-ghost'}`;
+  document.getElementById('pm-manual-btn').className=`btn btn-sm ${mode==='manual'?'btn-b':'btn-ghost'}`;
+}
+
+function renderPriceHistory(){
+  const list=document.getElementById('mi-ph-list');
+  const hint=document.getElementById('mi-ph-hint');
+  if(!_priceHistory.length){
+    list.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 0;text-align:center">ยังไม่มีข้อมูล — กด "+ เพิ่มเดือน"</div>';
+    hint.textContent='💡 ราคาของเดือนล่าสุดจะใช้เป็นราคาปัจจุบัน';
+    hint.className='fhint';
+    return;
+  }
+  // เรียงโดยแนบ originalIndex ไว้ก่อน
+  const withIdx=_priceHistory.map((r,i)=>({...r,_i:i})).sort((a,b)=>a.month.localeCompare(b.month));
+  list.innerHTML=withIdx.map(row=>`
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:7px">
+      <input type="month" value="${row.month}"
+        style="flex:1;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);
+               border-radius:var(--rads);color:var(--text);font-size:13px;outline:none;font-family:'Outfit';-webkit-appearance:none"
+        onchange="_priceHistory[${row._i}].month=this.value;renderPriceHistory()">
+      <div style="position:relative;flex-shrink:0">
+        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:12px;pointer-events:none">$</span>
+        <input type="number" value="${row.price||''}" placeholder="0.00" step="any"
+          style="width:100px;padding:8px 10px 8px 20px;background:var(--bg3);border:1px solid var(--border2);
+                 border-radius:var(--rads);color:var(--text);font-size:13px;outline:none;font-family:'JetBrains Mono'"
+          onchange="_priceHistory[${row._i}].price=parseFloat(this.value)||0;renderPriceHistory()">
+      </div>
+      <button class="btn btn-ghost btico" onclick="_priceHistory.splice(${row._i},1);renderPriceHistory()">🗑️</button>
+    </div>`).join('');
+  const latest=withIdx[withIdx.length-1];
+  hint.textContent=latest?.price>0
+    ? `💡 ราคาล่าสุด (${latest.month}): $${latest.price} — ใช้เป็นราคาปัจจุบัน ✅`
+    : '💡 ราคาของเดือนล่าสุดจะใช้เป็นราคาปัจจุบัน';
+  hint.className=latest?.price>0?'fhint ok':'fhint';
+}
+
+function addPriceRow(){
+  const now=new Date();
+  // หาเดือนล่าสุดที่ยังไม่มีในลิสต์
+  let target=null;
+  for(let i=0;i<24;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const m=d.toISOString().slice(0,7);
+    if(!_priceHistory.find(r=>r.month===m)){target=m;break;}
+  }
+  if(target) _priceHistory.push({month:target,price:0});
+  else _priceHistory.push({month:new Date().toISOString().slice(0,7),price:0});
+  _priceHistory.sort((a,b)=>a.month.localeCompare(b.month));
+  renderPriceHistory();
+}
+
+async function fetchSinglePrice(symOverride){
+  const sym=(symOverride||document.getElementById('mi-sym').value).toUpperCase().trim();
+  if(!sym){toast('กรุณากรอก Symbol ก่อน',false);return;}
+  const ch=document.getElementById('mi-ch');
+  const btn=document.getElementById('mi-fetch-btn');
+  ch.textContent='⏳ กำลังดึงราคา...';ch.className='fhint';
+  if(btn){btn.disabled=true;btn.textContent='⏳ กำลังดึง...';}
+  try{
+    const url=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${sym}&fields=regularMarketPrice,regularMarketChangePercent`;
+    const res=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(9000)});
+    const json=await res.json();
+    const q=json?.quoteResponse?.result?.[0];
+    if(q?.regularMarketPrice){
+      document.getElementById('mi-cur').value=q.regularMarketPrice;
+      ch.textContent=`✅ ${fU(q.regularMarketPrice)} (${fP(q.regularMarketChangePercent||0)})`;
+      ch.className='fhint ok';
+      LIVE[sym]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent||0};
+    }else{
+      ch.textContent='⚠️ ไม่พบราคา — กรอกเองได้เลย';ch.className='fhint';
+    }
+  }catch(e){
+    ch.textContent='⚠️ ดึงไม่ได้ — กรอกเองได้เลย';ch.className='fhint';
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='📡 ดึงราคา';}
+  }
 }
 function calcTotal(){
   const qty=parseFloat(document.getElementById('mi-qty').value)||0;
