@@ -194,6 +194,124 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 /* ── CHART ── */
 .cwrap{position:relative;height:180px}
+
+/* ══ PIN LOCK SCREEN ══════════════════════════════════════════════════ */
+#pin-screen{
+  position:fixed;inset:0;z-index:9000;
+  background:var(--bg0);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);
+  gap:0;
+}
+#pin-screen::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 30% 20%,rgba(0,223,160,.055),transparent),
+    radial-gradient(ellipse 60% 60% at 75% 80%,rgba(75,150,255,.055),transparent);
+}
+#pin-screen.hidden{display:none}
+.pin-logo{
+  font-weight:900;font-size:22px;letter-spacing:-.04em;margin-bottom:6px;
+  background:linear-gradient(120deg,var(--g),var(--b));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  position:relative;z-index:1;
+}
+.pin-title{font-size:13px;color:var(--muted2);font-weight:500;margin-bottom:32px;position:relative;z-index:1}
+.pin-dots{display:flex;gap:14px;margin-bottom:36px;position:relative;z-index:1}
+.pin-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--bg4);background:transparent;
+  transition:all .15s cubic-bezier(.4,0,.2,1);
+}
+.pin-dot.filled{background:var(--b);border-color:var(--b);transform:scale(1.15)}
+.pin-dot.error{background:var(--r);border-color:var(--r)}
+#pin-screen.shake .pin-dots{animation:pin-shake .38s ease}
+@keyframes pin-shake{
+  0%,100%{transform:translateX(0)}
+  15%{transform:translateX(-8px)}
+  30%{transform:translateX(8px)}
+  45%{transform:translateX(-6px)}
+  60%{transform:translateX(6px)}
+  75%{transform:translateX(-3px)}
+  90%{transform:translateX(3px)}
+}
+.pin-pad{
+  display:grid;grid-template-columns:repeat(3,72px);
+  grid-template-rows:repeat(4,72px);gap:10px;
+  position:relative;z-index:1;
+}
+.pin-key{
+  width:72px;height:72px;border-radius:50%;border:none;
+  background:var(--bg2);border:1px solid var(--border2);
+  color:var(--text);font-family:'Outfit',sans-serif;
+  font-size:22px;font-weight:600;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  line-height:1;gap:1px;
+  transition:background .1s,transform .08s,border-color .1s;
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+.pin-key:active{background:var(--bg4);transform:scale(.93);border-color:var(--border)}
+.pin-key.pin-key-0{grid-column:2}
+.pin-key.pin-key-del{grid-column:3;background:transparent;border-color:transparent;font-size:20px;color:var(--muted2)}
+.pin-key.pin-key-del:active{background:var(--bg3);border-color:var(--border)}
+.pin-sub{font-size:8px;color:var(--muted);letter-spacing:.06em;font-weight:500}
+.pin-err{font-size:12px;color:var(--r);margin-top:-24px;margin-bottom:24px;
+  min-height:18px;font-weight:600;position:relative;z-index:1;text-align:center}
+.pin-hint{font-size:11px;color:var(--muted);margin-top:20px;position:relative;z-index:1;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* ── PIN SETUP MODAL ── */
+#pin-setup-wrap{
+  position:fixed;inset:0;z-index:9100;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(12px);
+  display:flex;align-items:flex-end;justify-content:center;
+}
+#pin-setup-wrap.hidden{display:none}
+.pin-setup-box{
+  background:var(--bg1);border:1px solid var(--border2);
+  border-radius:20px 20px 0 0;width:100%;max-width:430px;
+  padding:0 0 calc(20px + env(safe-area-inset-bottom,0));
+  animation:mu .22s cubic-bezier(.32,.72,0,1);
+}
+.pin-setup-step{padding:22px 24px 16px;text-align:center}
+.pin-setup-step h3{font-size:17px;font-weight:800;margin-bottom:6px}
+.pin-setup-step p{font-size:12px;color:var(--muted2);line-height:1.6}
+
+/* ── PIN SETTINGS BUTTON ── */
+.pin-settings-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--rads);margin-bottom:8px;cursor:pointer;
+}
+.pin-settings-row:active{background:var(--bg3)}
+
+/* ── INVEST SUB-TABS ── */
+.itabs{display:flex;gap:0;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:3px;margin-bottom:12px}
+.itab{flex:1;padding:7px 0;border:none;background:transparent;color:var(--muted2);
+  font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;
+  border-radius:7px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.itab.active{background:var(--bg4);color:var(--text)}
+
+/* ── PRICE ROW ── */
+.pxrow{display:flex;align-items:center;gap:9px;padding:10px 14px;
+  border-bottom:1px solid var(--border);transition:background .12s}
+.pxrow:last-child{border-bottom:none}
+.pxrow:hover{background:rgba(255,255,255,.02)}
+.pxsym{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;min-width:52px}
+.pxname{font-size:10px;color:var(--muted2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.pxinput{flex:1;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:7px;color:var(--text);font-family:'JetBrains Mono',monospace;
+  font-size:14px;font-weight:600;text-align:right;outline:none;min-width:0;
+  transition:border-color .15s}
+.pxinput:focus{border-color:var(--b)}
+.pxinput.saved{border-color:var(--g);animation:px-flash .4s ease}
+@keyframes px-flash{0%{background:rgba(0,223,160,.15)}100%{background:var(--bg3)}}
+.pxchg{font-size:10px;font-weight:700;min-width:44px;text-align:right;flex-shrink:0}
+.pxbtn{padding:6px 9px;border-radius:6px;border:none;background:var(--bg3);
+  border:1px solid var(--border2);color:var(--muted2);cursor:pointer;font-size:13px;
+  flex-shrink:0;transition:all .15s;line-height:1}
+.pxbtn:hover{color:var(--b);border-color:var(--b)}
+.pxbtn.loading{animation:sp .7s linear infinite;opacity:.6;pointer-events:none}
 </style>
 </head>
 <body>
@@ -318,26 +436,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </div>
 </div>
 
-<!-- UPDATE PRICE -->
-<div class="mov" id="m-px">
-<div class="modal" style="border-radius:18px">
-  <div class="mh2"></div>
-  <div class="mhead">
-    <div class="mtitle" id="mp-t">💹 อัปเดตราคา</div>
-    <button class="btn btn-ghost btn-xs" onclick="cm('m-px')">✕</button>
-  </div>
-  <div class="mbody">
-    <div class="fg">
-      <label class="fl">ราคาปัจจุบัน (USD)</label>
-      <input class="fi" type="number" id="mp-px" placeholder="0.00" step="any">
-    </div>
-  </div>
-  <div class="mfoot" style="padding-bottom:12px">
-    <button class="btn btn-g btn-full" onclick="savePx()">อัปเดต</button>
-    <button class="btn btn-ghost" onclick="cm('m-px')">ยกเลิก</button>
-  </div>
-</div>
-</div>
 
 <!-- RESERVE -->
 <div class="mov" id="m-res">
@@ -519,6 +617,35 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </div>
 </div>
 
+<!-- ══ PIN LOCK SCREEN ═══════════════════════════════════════════════ -->
+<div id="pin-screen" class="hidden">
+  <div class="pin-logo">⬡ WealthOS</div>
+  <div class="pin-title" id="pin-title">กรอก PIN เพื่อเข้าใช้งาน</div>
+  <div class="pin-dots" id="pin-dots"></div>
+  <div class="pin-err" id="pin-err"></div>
+  <div class="pin-pad" id="pin-pad"></div>
+  <div class="pin-hint" id="pin-hint" onclick="pinForgot()" style="display:none">ลืม PIN? รีเซ็ต (ข้อมูลจะหาย)</div>
+</div>
+
+<!-- ══ PIN SETUP SHEET ════════════════════════════════════════════════ -->
+<div id="pin-setup-wrap" class="hidden">
+  <div class="pin-setup-box">
+    <div style="width:38px;height:4px;background:var(--bg4);border-radius:4px;margin:12px auto 0"></div>
+    <div class="pin-setup-step">
+      <h3 id="pss-title">🔐 ตั้ง PIN ใหม่</h3>
+      <p id="pss-desc">กรอก PIN 4-6 หลักเพื่อป้องกันการเข้าถึงข้อมูล</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0;padding-bottom:8px">
+      <div class="pin-dots" id="pss-dots"></div>
+      <div class="pin-err" id="pss-err" style="margin-top:-16px;margin-bottom:20px"></div>
+      <div class="pin-pad" id="pss-pad"></div>
+    </div>
+    <div style="padding:0 20px;display:flex;gap:8px">
+      <button class="btn btn-ghost btn-full btn-sm" onclick="closePinSetup()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -569,7 +696,7 @@ const SEC = {
 const KEY = 'wo_v5';
 let DB = {investments:[], reserve:[], fxPorts:[], fxWithdrawals:[], usdthb:35.0};
 let LIVE = {};
-let editId=null, pxEditId=null;
+let editId=null;
 let _priceMode='auto', _priceHistory=[];
 let pieChart=null, growthChart=null;
 
@@ -627,13 +754,18 @@ function renderPriceBar(){
 }
 
 /* ══ NAVIGATION ══════════════════════════════════════════════════════ */
+let _invTab='port'; // 'port' | 'price'
 const PM={
   dash:   {title:'📊 ภาพรวม',    btn:''},
-  invest: {title:'📈 การลงทุน',  btn:`<button class="btn btn-b btn-sm" onclick="om('m-inv','new')">+ เพิ่ม</button>`},
+  invest: {title:'📈 การลงทุน',  btn:`<button class="btn btn-b btn-sm" id="inv-top-btn" onclick="invTopBtn()">+ เพิ่ม</button>`},
   rebal:  {title:'⚖️ Rebalance', btn:''},
   reserve:{title:'🏦 เงินสำรอง', btn:`<button class="btn btn-g btn-sm" onclick="om('m-res','new')">+ บันทึก</button>`},
   forex:  {title:'🤖 FX Bot',    btn:`<button class="btn btn-b btn-sm" onclick="openFxMenu()">+ เพิ่ม</button>`},
 };
+function invTopBtn(){
+  if(_invTab==='port') om('m-inv','new');
+  else document.getElementById('m-addpx')?.classList.add('open');
+}
 const renders={dash:rDash,invest:rInvest,rebal:rRebal,reserve:rRes,forex:rFx};
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -643,6 +775,12 @@ function go(id){
   document.getElementById('tt').textContent=PM[id].title;
   document.getElementById('ta').innerHTML=PM[id].btn;
   renders[id]?.();
+}
+function switchInvTab(tab){
+  _invTab=tab;
+  const btn=document.getElementById('inv-top-btn');
+  if(btn) btn.textContent=tab==='port'?'+ เพิ่ม':'+ สินทรัพย์';
+  rInvest();
 }
 
 /* ══ CALC ════════════════════════════════════════════════════════════ */
@@ -900,11 +1038,18 @@ function setRange(n){
 
 /* ══ INVEST PAGE ═════════════════════════════════════════════════════ */
 function rInvest(){
+  const pg=document.getElementById('pg-invest');
+  const tabsHtml=`<div class="itabs">
+    <button class="itab ${_invTab==='port'?'active':''}" onclick="switchInvTab('port')">📈 พอร์ต</button>
+    <button class="itab ${_invTab==='price'?'active':''}" onclick="switchInvTab('price')">💹 ราคาปัจจุบัน</button>
+  </div>`;
+  if(_invTab==='price'){ pg.innerHTML=tabsHtml+rPricePanel(); bindPriceRows(); return; }
+
+  // ── PORT TAB ──
   const inv=calcInv();
   const byCat={};
   DB.investments.forEach(i=>{(byCat[i.cat]||(byCat[i.cat]=[])).push(i);});
-  const pg=document.getElementById('pg-invest');
-  pg.innerHTML=`
+  pg.innerHTML=tabsHtml+`
   <div class="kg">
     <div class="kpi b"><div class="kico">💼</div><div class="kl">มูลค่าปัจจุบัน</div><div class="kv b">${fB(inv.curVal)}</div></div>
     <div class="kpi ${inv.pnl>=0?'g':'r'}"><div class="kico">${inv.pnl>=0?'📈':'📉'}</div><div class="kl">P&L</div><div class="kv ${inv.pnl>=0?'g':'r'}">${fB(inv.pnl)}</div><div class="ks">${fP(inv.pnlP)}</div></div>
@@ -936,10 +1081,10 @@ function rInvest(){
           <div style="display:flex;justify-content:space-between;align-items:flex-start">
             <div>
               <div class="asy" style="color:${SEC[cat].color}">${i.sym}${lp?`<span style="font-size:9px;color:var(--muted2);margin-left:4px">${(lp.chg||0)>=0?'▲':'▽'}${fN(Math.abs(lp.chg||0))}%</span>`:''}</div>
-              <div class="aname">${i.name}${i.priceMode==='manual'?`<span style="margin-left:5px;background:rgba(240,183,48,.15);color:var(--y);border:1px solid rgba(240,183,48,.25);border-radius:4px;padding:1px 5px;font-size:8.5px;font-weight:700">📝 ${i.priceHistory?.length||0} เดือน</span>`:''}</div>
+              <div class="aname">${i.name}</div>
             </div>
             <div style="display:flex;gap:3px">
-              <button class="btn btn-ghost btico" onclick="openPxMod('${i.id}','${i.sym}')">💹</button>
+              <button class="btn btn-ghost btico" onclick="switchInvTab('price')" title="แก้ราคา">💹</button>
               <button class="btn btn-ghost btico" onclick="om('m-inv','edit','${i.id}')">✏️</button>
               <button class="btn btn-ghost btico" onclick="doDelete('investments','${i.id}')">🗑️</button>
             </div>
@@ -967,6 +1112,113 @@ function rInvest(){
     </div>`;
   }).join('')}
   ${!DB.investments.length?`<div style="text-align:center;padding:50px 20px;color:var(--muted)"><div style="font-size:38px;margin-bottom:10px">📈</div><p style="font-size:13px">ยังไม่มีสินทรัพย์<br>กด "+ เพิ่ม" เพื่อเริ่มต้น</p></div>`:''}`;
+}
+
+/* ══ PRICE PANEL ═════════════════════════════════════════════════════ */
+function rPricePanel(){
+  if(!DB.investments.length) return`
+    <div style="text-align:center;padding:50px 20px;color:var(--muted)">
+      <div style="font-size:38px;margin-bottom:10px">💹</div>
+      <p style="font-size:13px">ยังไม่มีสินทรัพย์<br>กด "+ สินทรัพย์" เพื่อเริ่มต้น</p>
+    </div>`;
+  const updAt=DB._pxUpdated?`อัปเดต ${new Date(DB._pxUpdated).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}`:LIVE&&Object.keys(LIVE).length?'มีราคาจาก API':'ยังไม่ได้ดึง';
+  const rows=DB.investments.map(i=>{
+    const cat=SEC[i.cat]||SEC.OTHER;
+    const lp=LIVE[i.sym];
+    const chg=lp?.chg||0;
+    const chgHtml=lp?`<span class="pxchg ${chg>=0?'pos':'neg'}">${fP(chg)}</span>`:`<span class="pxchg" style="color:var(--muted)">—</span>`;
+    return`<div class="pxrow" data-id="${i.id}">
+      <div style="min-width:52px">
+        <div class="pxsym" style="color:${cat.color}">${i.sym}</div>
+        <div class="pxname">${i.name}</div>
+      </div>
+      ${chgHtml}
+      <input class="pxinput" type="number" step="any" value="${fN(i.curPrice||i.buyPrice,2).replace(/,/g,'')}"
+        placeholder="0.00" data-id="${i.id}" onchange="saveSinglePx(this)"
+        onfocus="this.select()" style="width:110px;flex:none">
+      <span style="font-size:11px;color:var(--muted2);flex-shrink:0">USD</span>
+      <button class="pxbtn" id="pxb-${i.id}" onclick="fetchOnePx('${i.id}','${i.sym}',this)" title="ดึงราคาจาก Yahoo">📡</button>
+      <button class="pxbtn" onclick="doDelete('investments','${i.id}')" title="ลบสินทรัพย์" style="color:var(--muted)">🗑️</button>
+    </div>`;
+  }).join('');
+  return`
+  <div class="card" style="margin-bottom:11px">
+    <div class="ch">
+      <span class="ct">💹 ราคาปัจจุบัน (USD)</span>
+      <span style="font-size:10px;color:var(--muted2)">${updAt}</span>
+    </div>
+    <div style="padding:8px 14px 6px;display:flex;gap:7px">
+      <button class="btn btn-b btn-sm btn-full" id="fetchall-btn" onclick="fetchAllPx()">📡 ดึงราคาทั้งหมด</button>
+    </div>
+    <div>${rows}</div>
+  </div>
+  <div style="font-size:11px;color:var(--muted);text-align:center;padding-bottom:6px">
+    📝 แก้ราคาได้โดยตรง · 📡 ดึงจาก Yahoo Finance · 🗑️ ลบสินทรัพย์
+  </div>`;
+}
+
+function bindPriceRows(){ /* inputs bind via inline handlers */ }
+
+function saveSinglePx(input){
+  const id=input.dataset.id;
+  const p=parseFloat(input.value);
+  if(isNaN(p)||p<0){input.value='';return;}
+  const i=DB.investments.find(x=>x.id===id);
+  if(i){ i.curPrice=p; DB._pxUpdated=new Date().toISOString(); saveDB(); }
+  input.classList.add('saved');
+  setTimeout(()=>input.classList.remove('saved'),600);
+  rDash();
+}
+
+async function fetchOnePx(id,sym,btn){
+  btn.classList.add('loading');
+  const orig=btn.textContent; btn.textContent='⏳';
+  try{
+    const url=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${sym}&fields=regularMarketPrice,regularMarketChangePercent`;
+    const res=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(9000)});
+    const json=await res.json();
+    const q=json?.quoteResponse?.result?.[0];
+    if(q?.regularMarketPrice){
+      LIVE[sym]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent||0};
+      const i=DB.investments.find(x=>x.id===id);
+      if(i){ i.curPrice=q.regularMarketPrice; DB._pxUpdated=new Date().toISOString(); saveDB(); }
+      // อัปเดต input และ %chg โดยตรง ไม่ต้อง re-render ทั้งหน้า
+      const row=btn.closest('.pxrow');
+      const inp=row.querySelector('.pxinput');
+      if(inp){ inp.value=fN(q.regularMarketPrice,2).replace(/,/g,''); inp.classList.add('saved'); setTimeout(()=>inp.classList.remove('saved'),600); }
+      const chgEl=row.querySelector('.pxchg');
+      if(chgEl){ const c=q.regularMarketChangePercent||0; chgEl.textContent=fP(c); chgEl.className=`pxchg ${c>=0?'pos':'neg'}`; }
+      btn.textContent='✅'; rDash(); renderPriceBar();
+    } else { btn.textContent='⚠️'; }
+  }catch(e){ btn.textContent='⚠️'; }
+  btn.classList.remove('loading');
+  setTimeout(()=>{ btn.textContent=orig; },1800);
+}
+
+async function fetchAllPx(){
+  const btn=document.getElementById('fetchall-btn');
+  if(!DB.investments.length){toast('ไม่มีสินทรัพย์',false);return;}
+  if(btn){ btn.disabled=true; btn.textContent='⏳ กำลังดึง...'; }
+  const syms=[...new Set(DB.investments.map(i=>i.sym).concat(['USDTHB=X']))];
+  try{
+    const url=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms.join(',')}&fields=regularMarketPrice,regularMarketChangePercent`;
+    const res=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(12000)});
+    const json=await res.json();
+    (json?.quoteResponse?.result||[]).forEach(q=>{
+      if(q.symbol==='USDTHB=X'&&q.regularMarketPrice) DB.usdthb=q.regularMarketPrice;
+      LIVE[q.symbol]={price:q.regularMarketPrice,chg:q.regularMarketChangePercent||0};
+      const i=DB.investments.find(x=>x.sym===q.symbol);
+      if(i&&q.regularMarketPrice) i.curPrice=q.regularMarketPrice;
+    });
+    DB._pxUpdated=new Date().toISOString();
+    saveDB(); toast('ดึงราคาครบทุกตัวแล้ว ✅'); renderPriceBar();
+    // re-render panel
+    const pg=document.getElementById('pg-invest');
+    const tabs=pg.querySelector('.itabs')?.outerHTML||'';
+    pg.innerHTML=tabs+rPricePanel();
+    rDash();
+  }catch(e){ toast('ดึงราคาไม่ได้',false); }
+  finally{ if(btn){ btn.disabled=false; btn.textContent='📡 ดึงราคาทั้งหมด'; } }
 }
 
 /* ══ REBALANCE ═══════════════════════════════════════════════════════
@@ -1332,20 +1584,6 @@ function saveInv(){
   saveDB();cm('m-inv');toast('บันทึกสำเร็จ');rInvest();rDash();
 }
 
-function openPxMod(id,sym){
-  pxEditId=id;
-  document.getElementById('mp-t').textContent=`💹 อัปเดตราคา ${sym}`;
-  const i=DB.investments.find(x=>x.id===id);
-  document.getElementById('mp-px').value=i?.curPrice||'';
-  document.getElementById('m-px').classList.add('open');
-}
-function savePx(){
-  const p=parseFloat(document.getElementById('mp-px').value);
-  if(isNaN(p)||p<0){toast('ราคาไม่ถูกต้อง',false);return;}
-  const i=DB.investments.find(x=>x.id===pxEditId);
-  if(i){i.curPrice=p;saveDB();}
-  cm('m-px');toast('อัปเดตราคาแล้ว');rInvest();rDash();
-}
 
 function saveRes(){
   const date=document.getElementById('rr-d').value;
@@ -1534,11 +1772,352 @@ function doDelete(sec,id){
   document.getElementById('m-del').classList.add('open');
 }
 
+/* ══ PIN SYSTEM ══════════════════════════════════════════════════════
+   - PIN stored as SHA-256 hash in localStorage (never plaintext)
+   - Auto-lock after 5 min inactivity (configurable)
+   - 5 failed attempts → 30s cooldown
+   - Setup flow: enter new PIN → confirm PIN
+════════════════════════════════════════════════════════════════════ */
+const PIN_KEY   = 'wo_pin_hash';
+const PIN_FAILS = 'wo_pin_fails';
+const PIN_UNTIL = 'wo_pin_until';
+const LOCK_AFTER = 5 * 60 * 1000; // 5 นาที
+let _pinLocked = false;
+let _lockTimer  = null;
+let _pinBuf     = '';
+let _setupStep  = 0; // 0=enter new, 1=confirm
+let _setupFirst = '';
+let _pssLen     = 4;  // target length during setup
+let _activeLen  = 0;  // actual stored pin length
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function hasPIN(){ return !!localStorage.getItem(PIN_KEY); }
+function getLen(){
+  // store pin length alongside hash for dot rendering
+  return parseInt(localStorage.getItem('wo_pin_len')||'4');
+}
+
+// ── LOCK / UNLOCK ──────────────────────────────────────────────────
+function lockApp(){
+  if(!hasPIN()) return;
+  _pinLocked = true;
+  _pinBuf = '';
+  _activeLen = getLen();
+  clearTimeout(_lockTimer);
+  const sc = document.getElementById('pin-screen');
+  sc.classList.remove('hidden');
+  document.getElementById('pin-title').textContent = 'กรอก PIN เพื่อเข้าใช้งาน';
+  document.getElementById('pin-err').textContent = '';
+  document.getElementById('pin-hint').style.display = 'block';
+  renderPinDots('pin-dots', _pinBuf, _activeLen);
+  buildPinPad('pin-pad', pinKeyPress);
+  checkCooldown();
+}
+
+function unlockApp(){
+  _pinLocked = false;
+  document.getElementById('pin-screen').classList.add('hidden');
+  resetLockTimer();
+}
+
+function resetLockTimer(){
+  if(!hasPIN()) return;
+  clearTimeout(_lockTimer);
+  _lockTimer = setTimeout(lockApp, LOCK_AFTER);
+}
+
+// รีเซ็ต timer ทุกครั้งที่มี interaction
+['touchstart','click','keydown'].forEach(ev =>
+  document.addEventListener(ev, ()=>{ if(!_pinLocked) resetLockTimer(); }, {passive:true})
+);
+
+// ── COOLDOWN CHECK ─────────────────────────────────────────────────
+function checkCooldown(){
+  const until = parseInt(localStorage.getItem(PIN_UNTIL)||'0');
+  const now = Date.now();
+  if(until > now){
+    const secs = Math.ceil((until - now)/1000);
+    disablePinPad('pin-pad', true);
+    document.getElementById('pin-err').textContent = `⏳ ลองใหม่ใน ${secs} วินาที`;
+    const iv = setInterval(()=>{
+      const s = Math.ceil((parseInt(localStorage.getItem(PIN_UNTIL)||'0') - Date.now())/1000);
+      if(s <= 0){ clearInterval(iv); disablePinPad('pin-pad', false); document.getElementById('pin-err').textContent=''; }
+      else document.getElementById('pin-err').textContent = `⏳ ลองใหม่ใน ${s} วินาที`;
+    }, 1000);
+  }
+}
+
+function disablePinPad(padId, dis){
+  document.getElementById(padId)?.querySelectorAll('.pin-key')
+    .forEach(k => k.disabled = dis);
+}
+
+// ── PIN KEY PRESS ─────────────────────────────────────────────────
+async function pinKeyPress(k){
+  if(parseInt(localStorage.getItem(PIN_UNTIL)||'0') > Date.now()) return;
+  if(k === 'del'){
+    _pinBuf = _pinBuf.slice(0,-1);
+  } else {
+    if(_pinBuf.length >= _activeLen) return;
+    _pinBuf += k;
+  }
+  renderPinDots('pin-dots', _pinBuf, _activeLen);
+  if(_pinBuf.length === _activeLen){
+    await checkPin(_pinBuf);
+  }
+}
+
+async function checkPin(entered){
+  const hash = await sha256(entered);
+  const stored = localStorage.getItem(PIN_KEY);
+  if(hash === stored){
+    localStorage.removeItem(PIN_FAILS);
+    localStorage.removeItem(PIN_UNTIL);
+    _pinBuf = '';
+    // success flash
+    document.querySelectorAll('#pin-dots .pin-dot').forEach(d => {
+      d.style.background = 'var(--g)'; d.style.borderColor = 'var(--g)';
+    });
+    setTimeout(unlockApp, 260);
+  } else {
+    // wrong pin
+    const fails = (parseInt(localStorage.getItem(PIN_FAILS)||'0')) + 1;
+    localStorage.setItem(PIN_FAILS, fails);
+    if(fails >= 5){
+      const until = Date.now() + 30000;
+      localStorage.setItem(PIN_UNTIL, until);
+      document.getElementById('pin-err').textContent = '⏳ ลองใหม่ใน 30 วินาที';
+      setTimeout(checkCooldown, 0);
+    } else {
+      document.getElementById('pin-err').textContent = `PIN ไม่ถูกต้อง (${5-fails} ครั้งที่เหลือ)`;
+    }
+    // shake + error dots
+    document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.add('error'));
+    const sc = document.getElementById('pin-screen');
+    sc.classList.add('shake');
+    setTimeout(()=>{
+      sc.classList.remove('shake');
+      _pinBuf = '';
+      renderPinDots('pin-dots', '', _activeLen);
+      document.querySelectorAll('#pin-dots .pin-dot').forEach(d => d.classList.remove('error'));
+    }, 420);
+  }
+}
+
+// ── PIN FORGOT ────────────────────────────────────────────────────
+function pinForgot(){
+  if(!confirm('⚠️ การรีเซ็ต PIN จะล้างข้อมูลทั้งหมดในแอป ยืนยันหรือไม่?')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+// ── RENDER HELPERS ─────────────────────────────────────────────────
+function renderPinDots(containerId, buf, len){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = Array.from({length:len},(_,i)=>
+    `<div class="pin-dot ${i < buf.length ? 'filled':''}"></div>`
+  ).join('');
+}
+
+const PAD_KEYS = [
+  {n:'1',s:''},{n:'2',s:'ABC'},{n:'3',s:'DEF'},
+  {n:'4',s:'GHI'},{n:'5',s:'JKL'},{n:'6',s:'MNO'},
+  {n:'7',s:'PQRS'},{n:'8',s:'TUV'},{n:'9',s:'WXYZ'},
+  {n:'0',s:''},
+];
+
+function buildPinPad(padId, handler){
+  const el = document.getElementById(padId);
+  if(!el) return;
+  let html = '';
+  for(let i=0;i<9;i++){
+    const k = PAD_KEYS[i];
+    html += `<button class="pin-key" onclick="(${handler.name}||window['${handler.name}'])('${k.n}')">
+      ${k.n}${k.s?`<span class="pin-sub">${k.s}</span>`:''}
+    </button>`;
+  }
+  // row 4: empty, 0, del
+  html += `<button class="pin-key" style="visibility:hidden" disabled></button>`;
+  html += `<button class="pin-key pin-key-0" onclick="(${handler.name}||window['${handler.name}'])('0')">0</button>`;
+  html += `<button class="pin-key pin-key-del" onclick="(${handler.name}||window['${handler.name}'])('del')">⌫</button>`;
+  el.innerHTML = html;
+}
+
+// ── PIN SETUP FLOW ─────────────────────────────────────────────────
+function openPinSetup(){
+  _setupStep = 0; _setupFirst = ''; _pinBuf = '';
+  _pssLen = hasPIN() ? getLen() : 4;
+  document.getElementById('pss-title').textContent = hasPIN() ? '🔐 เปลี่ยน PIN' : '🔐 ตั้ง PIN ใหม่';
+  document.getElementById('pss-desc').textContent = `เลือก PIN ${_pssLen} หลัก`;
+  document.getElementById('pss-err').textContent = '';
+  // length picker row
+  buildPssLenPicker();
+  renderPinDots('pss-dots', '', _pssLen);
+  buildPinPad('pss-pad', pssKeyPress);
+  document.getElementById('pin-setup-wrap').classList.remove('hidden');
+}
+
+function buildPssLenPicker(){
+  // inject a "4 / 5 / 6 หลัก" toggle above pss-dots if not exists
+  let picker = document.getElementById('pss-len-pick');
+  if(!picker){
+    picker = document.createElement('div');
+    picker.id = 'pss-len-pick';
+    picker.style.cssText = 'display:flex;gap:8px;margin-bottom:20px;z-index:1;position:relative';
+    document.getElementById('pss-dots').insertAdjacentElement('beforebegin', picker);
+  }
+  picker.innerHTML = [4,5,6].map(n =>
+    `<button onclick="setPssLen(${n})" style="
+      flex:1;padding:7px 0;border-radius:7px;border:1px solid ${n===_pssLen?'var(--b)':'var(--border2)'};
+      background:${n===_pssLen?'rgba(75,150,255,.15)':'var(--bg3)'};
+      color:${n===_pssLen?'var(--b)':'var(--muted2)'};
+      font-family:'Outfit';font-size:13px;font-weight:${n===_pssLen?'700':'500'};cursor:pointer">
+      ${n} หลัก
+    </button>`
+  ).join('');
+}
+
+function setPssLen(n){
+  _pssLen = n; _pinBuf = '';
+  buildPssLenPicker();
+  renderPinDots('pss-dots', '', _pssLen);
+  document.getElementById('pss-err').textContent = '';
+}
+
+async function pssKeyPress(k){
+  if(k === 'del'){
+    _pinBuf = _pinBuf.slice(0,-1);
+  } else {
+    if(_pinBuf.length >= _pssLen) return;
+    _pinBuf += k;
+  }
+  renderPinDots('pss-dots', _pinBuf, _pssLen);
+  if(_pinBuf.length === _pssLen){
+    if(_setupStep === 0){
+      // step 1: เก็บ PIN แรก รอยืนยัน
+      _setupFirst = _pinBuf;
+      _pinBuf = '';
+      _setupStep = 1;
+      document.getElementById('pss-title').textContent = '✅ ยืนยัน PIN อีกครั้ง';
+      document.getElementById('pss-desc').textContent = 'กรอก PIN เดิมซ้ำเพื่อยืนยัน';
+      document.getElementById('pss-err').textContent = '';
+      document.getElementById('pss-len-pick').style.display = 'none';
+      renderPinDots('pss-dots', '', _pssLen);
+    } else {
+      // step 2: ตรวจสอบ
+      if(_pinBuf === _setupFirst){
+        const hash = await sha256(_pinBuf);
+        localStorage.setItem(PIN_KEY, hash);
+        localStorage.setItem('wo_pin_len', _pssLen);
+        localStorage.removeItem(PIN_FAILS);
+        localStorage.removeItem(PIN_UNTIL);
+        closePinSetup();
+        toast('ตั้ง PIN สำเร็จ 🔐');
+        resetLockTimer();
+        rSettingsIfOpen();
+      } else {
+        document.getElementById('pss-err').textContent = 'PIN ไม่ตรงกัน ลองใหม่';
+        document.querySelectorAll('#pss-dots .pin-dot').forEach(d => d.classList.add('error'));
+        const box = document.querySelector('.pin-setup-box');
+        box.style.animation = 'none';
+        setTimeout(()=>{
+          _pinBuf = ''; _setupStep = 0; _setupFirst = '';
+          document.getElementById('pss-title').textContent = hasPIN()?'🔐 เปลี่ยน PIN':'🔐 ตั้ง PIN ใหม่';
+          document.getElementById('pss-desc').textContent = `เลือก PIN ${_pssLen} หลัก`;
+          document.getElementById('pss-len-pick').style.display = '';
+          renderPinDots('pss-dots', '', _pssLen);
+          document.querySelectorAll('#pss-dots .pin-dot').forEach(d => d.classList.remove('error'));
+        }, 500);
+      }
+    }
+  }
+}
+
+function closePinSetup(){
+  document.getElementById('pin-setup-wrap').classList.add('hidden');
+  _pinBuf = '';
+}
+
+function removePIN(){
+  if(!confirm('ปิดการใช้ PIN lock ใช่ไหม?')) return;
+  localStorage.removeItem(PIN_KEY);
+  localStorage.removeItem('wo_pin_len');
+  localStorage.removeItem(PIN_FAILS);
+  localStorage.removeItem(PIN_UNTIL);
+  clearTimeout(_lockTimer);
+  toast('ปิด PIN lock แล้ว');
+  rSettingsIfOpen();
+}
+
+function rSettingsIfOpen(){
+  // re-render settings card ถ้ามีอยู่
+  const sc = document.getElementById('pin-settings-card');
+  if(sc) renderPinSettingsCard(sc);
+}
+
+// ── PIN SETTINGS CARD (ใน Dashboard หรือ topbar) ────────────────────
+function renderPinSettingsCard(el){
+  const active = hasPIN();
+  el.innerHTML = `
+    <div class="ch"><span class="ct">🔐 PIN Lock</span><span class="tag ${active?'tg':'tm'}">${active?'เปิดใช้งาน':'ปิดอยู่'}</span></div>
+    <div class="cb" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">
+      ${active ? `
+        <div style="font-size:12px;color:var(--muted2);line-height:1.6">
+          🔐 PIN ${getLen()} หลัก · ล็อกอัตโนมัติหลัง <b style="color:var(--text)">5 นาที</b> ไม่ใช้งาน
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm btn-full" onclick="openPinSetup()">✏️ เปลี่ยน PIN</button>
+          <button class="btn btn-r btn-sm btn-full" onclick="removePIN()">🔓 ปิด PIN</button>
+        </div>` : `
+        <div style="font-size:12px;color:var(--muted2);line-height:1.6">
+          ป้องกันการเข้าถึงข้อมูลเมื่อคนอื่นหยิบโทรศัพท์คุณ
+        </div>
+        <button class="btn btn-b btn-sm btn-full" onclick="openPinSetup()">🔐 เปิดใช้ PIN Lock</button>`}
+    </div>`;
+}
+
 /* ══ INIT ════════════════════════════════════════════════════════════ */
 loadDB();
 go('dash');
-fetchPrices();
-setInterval(fetchPrices,5*60*1000);
+
+// PIN CHECK ON LOAD
+if(hasPIN()){
+  lockApp();
+  // after unlock → load prices
+  const _origUnlock = unlockApp;
+  window.unlockApp = function(){
+    _origUnlock();
+    fetchPrices();
+    setInterval(fetchPrices,5*60*1000);
+  };
+} else {
+  fetchPrices();
+  setInterval(fetchPrices,5*60*1000);
+}
+
+// inject PIN settings card into dashboard
+const _origRDash = rDash;
+window.rDash = function(){
+  _origRDash();
+  // append pin card to dash page
+  const pg = document.getElementById('pg-dash');
+  if(pg){
+    let pc = document.getElementById('pin-settings-card');
+    if(!pc){
+      pc = document.createElement('div');
+      pc.id = 'pin-settings-card';
+      pc.className = 'card';
+      pg.appendChild(pc);
+    }
+    renderPinSettingsCard(pc);
+  }
+};
+rDash(); // re-run to inject pin card
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 let dPmt;
